@@ -1,2 +1,3 @@
 # AdventOfCode2023
-My participation in AoC 2022  Resources  Readme
+
+My participation in AoC 2023
