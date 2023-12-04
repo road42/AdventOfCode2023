@@ -1,16 +1,32 @@
 ﻿using System.Globalization;
 
-var lines = File.ReadAllLines("input.txt");
-var scratchCards = new List<ScratchCard>();
+// Read the file and create a list of scratch cards
+var scratchCards = File
+    .ReadAllLines("input.txt")
+    .Select(line => new ScratchCard(line))
+    .ToList();
 
-foreach (var line in lines)
+// Part 1: incl. calc
+var totalPoints = scratchCards.Sum(c => c.CalculatePoints());
+Console.WriteLine(totalPoints);
+
+// Part 2
+var processQueue = new Queue<ScratchCard>(scratchCards);
+var part2Sum = processQueue.Count;
+
+while (processQueue.Count != 0)
 {
-    scratchCards.Add(new ScratchCard(line));
+    var card = processQueue.Dequeue();
+    part2Sum += card.MatchingNumbers;
+
+    for (var i = 0; i < card.MatchingNumbers; i++)
+    {
+        processQueue.Enqueue(scratchCards.First(c => c.Id == (card.Id + i + 1)));
+    }
 }
 
-var totalPoints = scratchCards.Sum(c => c.CalculatePoints());
+Console.WriteLine(part2Sum);
 
-Console.WriteLine(totalPoints);
 
 internal sealed class ScratchCard
 {
@@ -39,5 +55,22 @@ internal sealed class ScratchCard
             }
         }
         return points;
+    }
+
+    public int MatchingNumbers
+    {
+        get
+        {
+            var matchingNumbers = new List<int>();
+
+            foreach (var number in this.YourNumbers)
+            {
+                if (this.WinningNumbers.Contains(number))
+                {
+                    matchingNumbers.Add(number);
+                }
+            }
+            return matchingNumbers.Count;
+        }
     }
 }
