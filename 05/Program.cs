@@ -1,51 +1,68 @@
-﻿
+﻿#pragma warning disable CA1310 // Specify StringComparison for correctness
 
 var lines = File.ReadAllLines("input.txt");
-var initialSeeds = lines[0].Substring(7).Trim().Split(' ').Select(long.Parse).ToList();
-var mappings = ParseMappings(lines);
-var lowestLocation = initialSeeds.Select(seed => ConvertThroughMappings(seed, mappings))
-                                         .Min();
+var amountOfMaps = 7;
 
-Console.WriteLine(lowestLocation);
+// read initial seeds
+var seeds = lines[0][7..].Split(' ').Select(long.Parse).ToArray();
+var leastSeed = long.MaxValue;
 
-static Dictionary<string, Dictionary<long, long>> ParseMappings(string[] lines)
+foreach (var seed in seeds)
 {
-    var mappings = new Dictionary<string, Dictionary<long, long>>();
-    var currentMappingKey = "";
+    var location = getNumForSource(seed, 1);
+    leastSeed = location < leastSeed ? location : leastSeed;
+}
+
+Console.WriteLine($"Least Seed: {leastSeed}");
+
+// get the "soil" for the "seed" (map no 1)
+long getNumForSource(long sourceNumber, int map)
+{
+    var loopMap = 0;
+    var destinationNumber = sourceNumber;
 
     foreach (var line in lines.Skip(1))
     {
         if (string.IsNullOrWhiteSpace(line))
             continue;
 
-        if (line.EndsWith("map:", StringComparison.OrdinalIgnoreCase))
+        if (line.EndsWith("map:"))
         {
-            currentMappingKey = line.Split(' ')[0];
-            mappings[currentMappingKey] = [];
+            loopMap++;
+            continue;
         }
-        else
+
+        if (loopMap > map)
+            break;
+
+        // found the map
+        if (loopMap == map)
         {
-            var parts = line.Split(' ').Select(long.Parse).ToArray();
-            for (var i = 0; i < parts[2]; i++)
+            // look for range
+            var address = line
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Select(long.Parse)
+                .ToArray();
+
+            // is in range?
+            var destinationMapNumber = address[0];
+            var sourceMapNumber = address[1];
+            var range = address[2];
+
+            // is in source range?
+            if (sourceNumber >= sourceMapNumber && sourceNumber < sourceMapNumber + range)
             {
-                mappings[currentMappingKey][parts[1] + i] = parts[0] + i;
+                // calculate destination number
+                destinationNumber = destinationMapNumber + (sourceNumber - sourceMapNumber);
+                break;
             }
         }
     }
 
-    return mappings;
-}
-
-static long ConvertThroughMappings(long seed, Dictionary<string, Dictionary<long, long>> mappings)
-{
-    var currentNumber = seed;
-
-    foreach (var mapping in mappings)
+    if (map < amountOfMaps)
     {
-        currentNumber = Convert(currentNumber, mapping.Value);
+        destinationNumber = getNumForSource(destinationNumber, ++map);
     }
 
-    return currentNumber;
+    return destinationNumber;
 }
-
-static long Convert(long source, Dictionary<long, long> map) => map.TryGetValue(source, out var value) ? value : source;
