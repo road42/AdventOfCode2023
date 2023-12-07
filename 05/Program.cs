@@ -7,13 +7,37 @@ var amountOfMaps = 7;
 var seeds = lines[0][7..].Split(' ').Select(long.Parse).ToArray();
 var leastSeed = long.MaxValue;
 
+// Part 1
 foreach (var seed in seeds)
 {
     var location = getNumForSource(seed, 1);
     leastSeed = location < leastSeed ? location : leastSeed;
 }
 
-Console.WriteLine($"Least Seed: {leastSeed}");
+Console.WriteLine($"Least Seed (Part 1): {leastSeed}");
+
+// Part 2
+// Reset
+leastSeed = long.MaxValue;
+
+for (var i = 0; i < seeds.Length; i += 2)
+{
+
+    var seed = seeds[i];
+    var range = seeds[i + 1];
+
+    Console.WriteLine($"    - Seed (Part 2): {seed} {range}");
+
+    // do the hard way
+    // generate subseeds
+    for (var j = seed; j < seed + range; j++)
+    {
+        var location = getNumForSource(j, 1);
+        leastSeed = location < leastSeed ? location : leastSeed;
+    }
+}
+
+Console.WriteLine($"Least Seed (Part 2): {leastSeed}");
 
 // get the "soil" for the "seed" (map no 1)
 long getNumForSource(long sourceNumber, int map)
