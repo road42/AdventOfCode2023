@@ -12,10 +12,10 @@ foreach (var line in lines)
     handsPart2.Add(new HandPart2(parts[0], int.Parse(parts[1], CultureInfo.InvariantCulture)));
 }
 
-//OutputHands([.. handsPart1]);
+OutputHands([.. handsPart1]);
 OutputHands([.. handsPart2]);
 
-void OutputHands(List<BaseHand> hands)
+static void OutputHands(List<BaseHand> hands)
 {
     var rank = 1;
     foreach (var hand in hands
