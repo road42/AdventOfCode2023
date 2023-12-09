@@ -1,16 +1,19 @@
 ﻿
 var lines = File.ReadAllLines("input.txt");
-long sum = 0;
+long sumNext = 0;
+long sumPrevious = 0;
 
 foreach (var line in lines)
 {
     var values = line.Split(' ').Select(long.Parse).ToList();
-    sum += ExtrapolateNextValue(values);
+    sumNext += ExtrapolateValue(values);
+    sumPrevious += ExtrapolateValue(values, false);
 }
 
-Console.WriteLine($"The sum of the extrapolated values is: {sum}");
+Console.WriteLine($"The sum of the extrapolated (next) values is: {sumNext}");
+Console.WriteLine($"The sum of the extrapolated (previous) values is: {sumPrevious}");
 
-static long ExtrapolateNextValue(List<long> values)
+static long ExtrapolateValue(List<long> values, bool nextValue = true)
 {
     var sequences = new List<List<long>> { new(values) };
 
@@ -28,11 +31,19 @@ static long ExtrapolateNextValue(List<long> values)
         sequences.Add(nextSequence);
     }
 
-    // Extrapolate the next value
+
     for (var i = sequences.Count - 2; i >= 0; i--)
     {
-        sequences[i].Add(sequences[i].Last() + sequences[i + 1].Last());
+        // Extrapolate the next value
+        if (nextValue)
+        {
+            sequences[i].Add(sequences[i].Last() + sequences[i + 1].Last());
+        }
+        else
+        {
+            sequences[i].Insert(0, sequences[i][0] - sequences[i + 1][0]);
+        }
     }
 
-    return sequences[0].Last();
+    return nextValue ? sequences[0].Last() : sequences[0][0];
 }
