@@ -1,4 +1,5 @@
-﻿
+﻿using System.Numerics;
+
 var lines = File.ReadAllLines("input.txt");
 var instructions = lines[0];
 
@@ -18,51 +19,44 @@ for (var i = 1; i < lines.Length; i++)
     nodes[node] = (connections[0], connections[1]);
 }
 
-//Start navigating the nodes
-var currentNode = "AAA";
-var stepCount = 0;
-var instructionPointer = 0;
+// Part 1
+string[] part1StartNodes = { "AAA" };
+Console.WriteLine($"Result Part 1: {nodeSteps(part1StartNodes, "ZZZ").Sum()}");
 
-while (currentNode != "ZZZ")
+// Part 2
+// GhostMode
+// Very hard, had to rework the whole thing (and needed help :-))
+// New way:
+// - There are 6 start and end nodes
+// - Calculate the number for every node
+var part2StartNodes = nodes.Keys.Where(n => n.EndsWith('A')).ToArray();
+var stepArray = nodeSteps(part2StartNodes, "Z");
+Console.WriteLine($"Result Part 2: {stepArray.Aggregate(LCM)}");
+
+// Generic funtion to calculate steps
+long[] nodeSteps(string[] startNodes, string endMarker)
 {
-    var direction = instructions[instructionPointer % instructions.Length];
-    currentNode = direction == 'L' ? nodes[currentNode].Left : nodes[currentNode].Right;
-    instructionPointer++;
-    stepCount++;
-}
+    var seen = new List<long>();
 
-Console.WriteLine($"Result: {stepCount}");
-
-
-// Ghost trip
-// Find all starting nodes (nodes ending with 'A')
-var currentNodes = nodes.Keys.Where(n => n.EndsWith("A", StringComparison.CurrentCulture)).ToArray();
-var steps = 0;
-var startNodes = currentNodes.Length;
-var nodesWithZ = 0;
-var nextNodes = new List<string>();
-
-do
-{
-    steps++;
-    nextNodes.Clear();
-
-    foreach (var node in currentNodes)
+    foreach (var node in startNodes)
     {
-        var direction = instructions[(steps - 1) % instructions.Length];
-        var nextNode = direction == 'L' ? nodes[node].Left : nodes[node].Right;
-        nextNodes.Add(nextNode);
+        var steps = 0;
+        var currentNode = node;
+        var instructionPointer = 0;
+
+        while (!currentNode.EndsWith(endMarker, StringComparison.CurrentCulture))
+        {
+            var direction = instructions[instructionPointer % instructions.Length];
+            currentNode = direction == 'L' ? nodes[currentNode].Left : nodes[currentNode].Right;
+            instructionPointer++;
+            steps++;
+        }
+
+        seen.Add(steps);
     }
 
-    nodesWithZ = nextNodes.Count(n => n.EndsWith("Z", StringComparison.CurrentCulture));
-    nextNodes.CopyTo(currentNodes);
-
-    if (steps % 100000 == 0)
-    {
-        Console.WriteLine($"Step {steps}: {currentNodes.Length} nodes {nodesWithZ} with Z");
-    }
-
+    return [.. seen];
 }
-while (nodesWithZ != startNodes);
 
-Console.WriteLine($"All nodes end with Z, stopping at step {steps}");
+// Calc the lowest common multiple for the values of the different graphs
+static long LCM(long a, long b) => (long)((BigInteger)a * (BigInteger)b / BigInteger.GreatestCommonDivisor((BigInteger)a, (BigInteger)b));
