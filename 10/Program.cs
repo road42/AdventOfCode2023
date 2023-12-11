@@ -23,6 +23,8 @@ var visited = new HashSet<(int, int)>
     startPosition
 };
 
+
+// Find the loop tiles
 Console.WriteLine("Start position: " + startPosition);
 
 var queue = new Queue<(int, int)>();
@@ -38,12 +40,23 @@ while (queue.Count > 0)
     }
 }
 
+// walk the loop
+// queue.Enqueue(startPosition);
+// var distance = 0;
+// var lastPosition = (-1, -1);
+
+// while (queue.Count > 0)
+// {
+//     var nextPosition = queue.Dequeue();
+//     var nextTile = WalkTheLine(lastPosition, nextPosition);
+// }
+
 // print result
 foreach (var position in visited)
 {
     Console.WriteLine($"Visited: {position.Item1} {position.Item2} {grid[position.Item1][position.Item2]}");
 }
-Console.WriteLine($"Amount: {visited.Count}");
+Console.WriteLine($"Amount: {Math.Ceiling(visited.Count/2.0)}");
 
 
 // get all tiles from the loop
@@ -169,20 +182,20 @@ string ValidNextTileFor((int, int) direction, char tile)
         // down
         return "|LJ";
     }
-    else if (tile == '7' && direction == (0, 1))
+    else if (tile == '7' && direction == (0, -1))
     {
-        // right
+        // left
         return "-FL";
     }
     else if (tile == '7' && direction == (1, 0))
     {
         // down
-        return "-FL";
+        return "|JL";
     }
     else if (tile == 'J' && direction == (-1, 0))
     {
         // up
-        return "-FL";
+        return "|F7";
     }
     else if (tile == 'J' && direction == (0, -1))
     {
