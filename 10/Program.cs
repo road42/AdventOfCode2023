@@ -40,17 +40,6 @@ while (queue.Count > 0)
     }
 }
 
-// walk the loop
-// queue.Enqueue(startPosition);
-// var distance = 0;
-// var lastPosition = (-1, -1);
-
-// while (queue.Count > 0)
-// {
-//     var nextPosition = queue.Dequeue();
-//     var nextTile = WalkTheLine(lastPosition, nextPosition);
-// }
-
 // print result
 foreach (var position in visited)
 {
